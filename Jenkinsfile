@@ -7,13 +7,11 @@ pipeline {
 apiVersion: v1
 kind: Pod
 spec:
-  terminationGracePeriodSeconds: 30
   containers:
   - name: terraform
     image: hashicorp/terraform:1.6.6
     command: ["cat"]
     tty: true
-    imagePullPolicy: IfNotPresent
 """
     }
   }
@@ -43,7 +41,7 @@ spec:
       steps {
         sh """
           terraform init \
-            -backend-config="key=eks/${ENV}/terraform.tfstate"
+            -backend-config="key=eks/${params.ENV}/terraform.tfstate"
         """
       }
     }
@@ -52,7 +50,7 @@ spec:
       steps {
         sh """
           terraform plan \
-            -var-file=env/${ENV}.tfvars \
+            -var-file=env/${params.ENV}.tfvars \
             -out=tfplan
         """
       }
