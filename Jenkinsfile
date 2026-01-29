@@ -38,13 +38,18 @@ spec:
     }
 
     stage('Terraform Init') {
-      steps {
-        sh """
-          terraform init \
-            -backend-config="key=eks/${params.ENV}/terraform.tfstate"
-        """
-      }
+        steps {
+            sh """
+            terraform init \
+                -backend-config="bucket=ankit-eks-tf-state-12345" \
+                -backend-config="key=eks/${params.ENV}/terraform.tfstate" \
+                -backend-config="region=ap-south-1" \
+                -backend-config="dynamodb_table=terraform-locks" \
+                -backend-config="encrypt=true"
+            """
+        }
     }
+
 
     stage('Terraform Plan') {
       steps {
