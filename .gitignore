@@ -1,0 +1,24 @@
+# --- TERRAFORM SPECIFIC ---
+# Local .terraform directories (contains provider binaries & modules)
+**/.terraform/*
+
+# .tfstate files (Contains plain-text secrets; use Remote State instead)
+*.tfstate
+*.tfstate.*
+
+# .tfvars files (Likely contain passwords or private keys)
+*.tfvars
+*.tfvars.json
+
+# --- SYSTEM & LOGS ---
+# Crash log files
+crash.log
+crash.*.log
+
+# Terraform CLI configuration files
+.terraformrc
+terraform.rc
+
+# --- EXCEPTIONS ---
+# DO NOT ignore .terraform.lock.hcl (Always commit this for version sync)
+!.terraform.lock.hcl
