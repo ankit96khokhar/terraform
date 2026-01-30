@@ -22,6 +22,9 @@ spec:
       choices: ['dev', 'staging', 'prod'],
       description: 'Terraform environment'
     )
+    choice(
+      
+    )
   }
 
   environment {

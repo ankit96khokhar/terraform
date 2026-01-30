@@ -21,7 +21,7 @@ module "eks" {
   account_id = var.account_id
 }
 
-module "default_node_group" {
+module "node_group" {
   source = "./modules/node-group"
 
   cluster_name = module.eks.cluster_name
