@@ -42,6 +42,26 @@ spec:
       }
     }
 
+    stage('Discover Modules') {
+      steps {
+        script {
+          def getModules = sh(script: "ls -d modules/*/ | cut -f2 -d'/'", returnStdout: true).trim()
+          def moduleList = ["ALL"] + getModules.split("\n")
+
+          properties([
+            parameters([
+              choice(
+                name: 'SELECTED_MODULE',
+                choices: moduleList,
+                description: 'Select the module to apply'
+              )
+            ])
+          ])
+          echo "Modules discovered: ${moduleList}"          
+        }
+      }
+    }
+
     stage('Terraform Init') {
       steps {
         withAWS(
