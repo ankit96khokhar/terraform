@@ -51,19 +51,14 @@ spec:
               -backend-config="region=ap-south-1" \
               -backend-config="dynamodb_table=terraform-locks" \
               -backend-config="encrypt=true"
+
+            terraform plan \
+              -var-file=env/${params.ENV}.tfvars \
+              -out=tfplan              
           """
         }
       }
     }
 
-    stage('Terraform Plan') {
-      steps {
-        sh """
-          terraform plan \
-            -var-file=env/${params.ENV}.tfvars \
-            -out=tfplan
-        """
-      }
-    }
   }
 }
