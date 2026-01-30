@@ -23,7 +23,9 @@ spec:
       description: 'Terraform environment'
     )
     choice(
-      
+      name: 'SELECTED_MODULE',
+      choices: ['ALL'],
+      description: 'Select the module to apply'
     )
   }
 
