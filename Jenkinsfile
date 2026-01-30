@@ -100,5 +100,38 @@ spec:
         }
       }
     }
+    
+    stage('Approve Terraform Apply') {
+      steps {
+        input(
+          message: """
+    You are about to APPLY Terraform changes.
+
+    Environment: ${params.ENV}
+    Modules: ${env.SELECTED_MODULES}
+
+    Do you want to continue?
+    """,
+          ok: 'Apply Terraform'
+        )
+      }
+    }
+
+    stage('Terraform Apply') {
+      steps {
+        withAWS(
+          credentials: 'aws-bootstrap',
+          role: 'arn:aws:iam::907793002691:role/terraform-ci-role',
+          roleSessionName: 'jenkins-terraform'
+        ) {
+          script {
+            sh """
+              terraform apply -auto-approve tfplan
+            """
+          }
+        }
+      }
+    }
+
   }
 }
