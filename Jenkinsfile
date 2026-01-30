@@ -57,7 +57,19 @@ spec:
               )
             ])
           ])
-          echo "Modules discovered: ${moduleList}"          
+          echo "Modules discovered: ${moduleList}"
+
+          def userInput = input(
+            id: 'userInput',
+            message: 'Which module do you want to apply?',
+            parameters: [
+              choice(
+                name: 'SELECTED_MODULE',
+                choices: moduleList,
+                description: 'Select the module to apply'
+              )          
+            ]
+          )
         }
       }
     }
