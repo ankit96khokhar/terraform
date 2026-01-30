@@ -38,18 +38,23 @@ spec:
     }
 
     stage('Terraform Init') {
-        steps {
-            sh """
+      steps {
+        withAWS(
+          credentials: 'aws-bootstrap',
+          role: 'arn:aws:iam::907793002691:role/terraform-ci-role',
+          roleSessionName: 'jenkins-terraform'
+        ) {
+          sh """
             terraform init \
-                -backend-config="bucket=ankit-eks-tf-state-12345" \
-                -backend-config="key=eks/${params.ENV}/terraform.tfstate" \
-                -backend-config="region=ap-south-1" \
-                -backend-config="dynamodb_table=terraform-locks" \
-                -backend-config="encrypt=true"
-            """
+              -backend-config="bucket=ankit-eks-tf-state-12345" \
+              -backend-config="key=eks/${params.ENV}/terraform.tfstate" \
+              -backend-config="region=ap-south-1" \
+              -backend-config="dynamodb_table=terraform-locks" \
+              -backend-config="encrypt=true"
+          """
         }
+      }
     }
-
 
     stage('Terraform Plan') {
       steps {
