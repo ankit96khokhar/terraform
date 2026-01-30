@@ -22,11 +22,6 @@ spec:
       choices: ['dev', 'staging', 'prod'],
       description: 'Terraform environment'
     )
-    choice(
-      name: 'SELECTED_MODULE',
-      choices: ['ALL'],
-      description: 'Select the module to apply'
-    )
   }
 
   environment {
@@ -42,60 +37,68 @@ spec:
       }
     }
 
-    stage('Discover Modules') {
+    stage('Discover & Select Modules') {
       steps {
         script {
-          def getModules = sh(script: "ls -d modules/*/ | cut -f2 -d'/'", returnStdout: true).trim()
-          def moduleList = ["ALL"] + getModules.split("\n")
+          def modules = sh(
+            script: "ls -d modules/*/ | cut -d'/' -f2",
+            returnStdout: true
+          ).trim().split("\n")
 
-          properties([
-            parameters([
-              choice(
-                name: 'SELECTED_MODULE',
-                choices: moduleList,
-                description: 'Select the module to apply'
-              )
-            ])
-          ])
-          echo "Modules discovered: ${moduleList}"
+          echo "Discovered modules: ${modules}"
 
-          def userInput = input(
-            id: 'userInput',
-            message: 'Which module do you want to apply?',
+          def selection = input(
+            message: "Available modules:\n${modules.join(', ')}\n\nEnter ALL or comma-separated list",
             parameters: [
-              choice(
-                name: 'SELECTED_MODULE',
-                choices: moduleList,
-                description: 'Select the module to apply'
-              )          
+              string(
+                name: 'SELECTED_MODULES',
+                defaultValue: 'ALL',
+                description: 'Modules to apply'
+              )
             ]
           )
+
+          env.SELECTED_MODULES = selection
         }
       }
     }
 
-    stage('Terraform Init') {
+    stage('Terraform Init & Plan') {
       steps {
         withAWS(
           credentials: 'aws-bootstrap',
           role: 'arn:aws:iam::907793002691:role/terraform-ci-role',
           roleSessionName: 'jenkins-terraform'
         ) {
-          sh """
-            terraform init \
-              -backend-config="bucket=ankit-eks-tf-state-12345" \
-              -backend-config="key=eks/${params.ENV}/terraform.tfstate" \
-              -backend-config="region=ap-south-1" \
-              -backend-config="dynamodb_table=terraform-locks" \
-              -backend-config="encrypt=true"
+          script {
 
-            terraform plan \
-              -var-file=env/${params.ENV}.tfvars \
-              -out=tfplan              
-          """
+            sh """
+              terraform init \
+                -backend-config="bucket=ankit-eks-tf-state-12345" \
+                -backend-config="key=eks/${params.ENV}/terraform.tfstate" \
+                -backend-config="region=ap-south-1" \
+                -backend-config="dynamodb_table=terraform-locks" \
+                -backend-config="encrypt=true"
+            """
+
+            if (env.SELECTED_MODULES == 'ALL') {
+              sh "terraform plan -var-file=env/${params.ENV}.tfvars -out=tfplan"
+            } else {
+              def targets = env.SELECTED_MODULES
+                .split(',')
+                .collect { "-target=module.${it.trim()}" }
+                .join(' ')
+
+              sh """
+                terraform plan \
+                  -var-file=env/${params.ENV}.tfvars \
+                  ${targets} \
+                  -out=tfplan
+              """
+            }
+          }
         }
       }
     }
-
   }
 }
