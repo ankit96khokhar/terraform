@@ -48,7 +48,13 @@ spec:
           echo "Discovered modules: ${modules}"
 
           def selection = input(
-            message: "Available modules:\n${modules.join(', ')}\n\nEnter ALL or comma-separated list",
+            message: """Available modules:
+${modules.join(', ')}
+
+Enter:
+- ALL
+- OR comma-separated list (example: eks,vpc)
+""",
             parameters: [
               string(
                 name: 'SELECTED_MODULES',
@@ -58,7 +64,7 @@ spec:
             ]
           )
 
-          env.SELECTED_MODULES = selection
+          env.SELECTED_MODULES = selection.trim()
         }
       }
     }
@@ -100,19 +106,20 @@ spec:
         }
       }
     }
-    
+
     stage('Approve Terraform Apply') {
       steps {
         input(
           message: """
-    You are about to APPLY Terraform changes.
+⚠️ TERRAFORM APPLY APPROVAL ⚠️
 
-    Environment: ${params.ENV}
-    Modules: ${env.SELECTED_MODULES}
+Environment : ${params.ENV}
+Modules     : ${env.SELECTED_MODULES}
 
-    Do you want to continue?
-    """,
-          ok: 'Apply Terraform'
+Click 'Apply Terraform' to continue.
+""",
+          ok: 'Apply Terraform',
+          submitter: 'Jenkins Admin'
         )
       }
     }
@@ -124,14 +131,9 @@ spec:
           role: 'arn:aws:iam::907793002691:role/terraform-ci-role',
           roleSessionName: 'jenkins-terraform'
         ) {
-          script {
-            sh """
-              terraform apply -auto-approve tfplan
-            """
-          }
+          sh "terraform apply -auto-approve tfplan"
         }
       }
     }
-
   }
 }
