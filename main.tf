@@ -22,7 +22,7 @@ module "eks" {
 }
 
 module "node_group" {
-  source = "./modules/node-group"
+  source = "./modules/node_group"
 
   cluster_name = module.eks.cluster_name
   node_group_name = "default"
