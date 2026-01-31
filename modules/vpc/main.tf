@@ -17,34 +17,43 @@ resource "aws_internet_gateway" "this" {
   }
 }
 
+data "aws_availability_zones" "available" {
+  state = "available"
+}
+
+locals {
+  azs = slice(data.aws_availability_zones.available.names, 0, 2)
+}
+
 resource "aws_subnet" "public" {
-    count = length(var.public_subnets)
+  count = length(local.azs)
 
-    vpc_id = aws_vpc.this.id
-    cidr_block = var.public_subnets[count.index]
-    availability_zone = var.availability_zones[count.index]
-    map_public_ip_on_launch = true
+  vpc_id                  = aws_vpc.this.id
+  cidr_block              = cidrsubnet(var.vpc_cidr, 8, count.index)
+  availability_zone       = local.azs[count.index]
+  map_public_ip_on_launch = true
 
-    tags = {
-        Name = "${var.cluster_name}-public-${count.index}"
-        "kubernetes.io/cluster/${var.cluster_name}" = "shared"
-        "kubernetes.io/role/elb"                    = "1"        
-    }
+  tags = {
+    Name = "${var.cluster_name}-public-${local.azs[count.index]}"
+    "kubernetes.io/cluster/${var.cluster_name}" = "shared"
+    "kubernetes.io/role/elb"                    = "1"
+  }
 }
 
 resource "aws_subnet" "private" {
-  count = length(var.private_subnets)
+  count = length(local.azs)
 
   vpc_id            = aws_vpc.this.id
-  cidr_block        = var.private_subnets[count.index]
-  availability_zone = var.availability_zones[count.index]
+  cidr_block        = cidrsubnet(var.vpc_cidr, 8, count.index + length(local.azs))
+  availability_zone = local.azs[count.index]
 
   tags = {
-    Name = "${var.cluster_name}-private-${count.index}"
+    Name = "${var.cluster_name}-private-${local.azs[count.index]}"
     "kubernetes.io/cluster/${var.cluster_name}" = "shared"
     "kubernetes.io/role/internal-elb"           = "1"
   }
 }
+
 
 resource "aws_eip" "nat" {
     domain = "vpc"
