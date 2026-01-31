@@ -24,6 +24,12 @@ spec:
     )
 
     choice(
+      name: 'REGION',
+      choices: ['ap-south-1', 'us-east-1', 'eu-west-1'],
+      description: 'AWS region'
+    )
+    
+    choice(
       name: 'ACTION',
       choices: ['plan', 'apply', 'destroy'],
       description: 'Terraform action to perform'
@@ -89,14 +95,18 @@ Enter:
           roleSessionName: 'jenkins-terraform'
         ) {
           script {
+            def backendFile = "backend/backend-${params.ENV}.hcl"
 
             sh """
-              terraform init \
-                -backend-config="bucket=ankit-eks-tf-state-12345" \
-                -backend-config="key=eks/${params.ENV}/terraform.tfstate" \
-                -backend-config="region=ap-south-1" \
-                -backend-config="dynamodb_table=terraform-locks" \
-                -backend-config="encrypt=true"
+              terraform init -reconfigure\
+                -backend-config=${backendFile} \              
+                -backend-config="key=eks/${params.ENV}/${params.REGION}/terraform.tfstate" \
+                -backend-config="region=${params.REGION}"
+            """
+
+            sh """
+              terraform workspace new ${params.ENV} || \
+              terraform workspace select ${params.ENV}
             """
 
             if (env.SELECTED_MODULES == 'ALL') {
