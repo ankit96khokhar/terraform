@@ -95,7 +95,7 @@ Enter:
           roleSessionName: 'jenkins-terraform'
         ) {
           script {
-            def backendFile = "backend/backend-${params.ENV}.hcl"
+            def backendFile = "backend/backend_${params.ENV}.hcl"
 
             sh """
               terraform init -reconfigure \
