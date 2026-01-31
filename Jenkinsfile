@@ -25,9 +25,15 @@ spec:
 
     choice(
       name: 'ACTION',
-      choices: ['plan', 'apply'],
+      choices: ['plan', 'apply', 'destroy'],
       description: 'Terraform action to perform'
     )
+
+    choice(
+      name: 'CONFIRM_DESTROY',
+      choices: ['NO', 'YES'],
+      description: 'Required for DESTROY'
+    )    
   }
 
   environment {
@@ -124,6 +130,62 @@ Enter:
           roleSessionName: 'jenkins-terraform'
         ) {
           sh "terraform apply -auto-approve tfplan"
+        }
+      }
+    }
+
+    stage('Terraform Destroy Plan') {
+      when {
+        allOf {
+          expression { params.ACTION == 'destroy' }
+          expression { params.CONFIRM_DESTROY == 'YES' }
+          expression { params.ENV != 'prod' }
+        }
+      }
+      steps {
+        withAWS(
+          credentials: 'aws-bootstrap',
+          role: 'arn:aws:iam::907793002691:role/terraform-ci-role',
+          roleSessionName: 'jenkins-terraform'
+        ) {
+          script {
+
+            if (env.SELECTED_MODULES == 'ALL') {
+              sh "terraform plan -destroy -var-file=env/${params.ENV}.tfvars -out=tfplan-destroy"
+            } else {
+              def targets = env.SELECTED_MODULES
+                .split(',')
+                .collect { "-target=module.${it.trim()}" }
+                .join(' ')
+
+              sh """
+                terraform plan -destroy \
+                  -var-file=env/${params.ENV}.tfvars \
+                  ${targets} \
+                  -out=tfplan-destroy
+              """
+            }
+          }
+        }
+        )
+      }
+    }
+
+    stage ('Terraform Destroy Apply') {
+      when {
+        allOf {
+          expression { params.ACTION == 'destroy' }
+          expression { params.CONFIRM_DESTROY == 'YES' }
+          expression { params.ENV != 'prod' }
+        }
+      }
+      steps {
+        withAWS(
+          credentials: 'aws-bootstrap',
+          role: 'arn:aws:iam::907793002691:role/terraform-ci-role',
+          roleSessionName: 'jenkins-terraform'
+        ) {
+          sh "terraform apply -auto-approve tfplan-destroy"
         }
       }
     }
