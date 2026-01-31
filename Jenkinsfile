@@ -98,7 +98,7 @@ Enter:
             def backendFile = "backend/backend-${params.ENV}.hcl"
 
             sh """
-              terraform init -reconfigure\
+              terraform init -reconfigure \
                 -backend-config=${backendFile} \              
                 -backend-config="key=eks/${params.ENV}/${params.REGION}/terraform.tfstate" \
                 -backend-config="region=${params.REGION}"
