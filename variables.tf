@@ -19,9 +19,9 @@ variable "default_node_group_taints" {
 }
 
 variable "vpc_cidr" {}
-variable "public_subnets" {}
-variable "private_subnets" {}
-variable "availability_zones" {}
+# variable "public_subnets" {}
+# variable "private_subnets" {}
+# variable "availability_zones" {}
 variable "cluster_name" {}
 variable "cluster_version" {}
 variable "admin_principal_arn" {}
