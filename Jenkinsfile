@@ -119,7 +119,7 @@ Modules     : ${env.SELECTED_MODULES}
 Click 'Apply Terraform' to continue.
 """,
           ok: 'Apply Terraform',
-          submitter: 'Jenkins Admin'
+          submitter: 'admin'
         )
       }
     }
