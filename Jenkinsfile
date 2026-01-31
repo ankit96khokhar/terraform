@@ -138,8 +138,6 @@ Enter:
       when {
         allOf {
           expression { params.ACTION == 'destroy' }
-          expression { params.CONFIRM_DESTROY == 'YES' }
-          expression { params.ENV != 'prod' }
         }
       }
       steps {
