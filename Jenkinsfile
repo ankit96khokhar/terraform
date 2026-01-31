@@ -99,7 +99,7 @@ Enter:
 
             sh """
               terraform init -reconfigure \
-                -backend-config=${backendFile} \              
+                -backend-config="${backendFile}" \
                 -backend-config="key=eks/${params.ENV}/${params.REGION}/terraform.tfstate" \
                 -backend-config="region=${params.REGION}"
             """
