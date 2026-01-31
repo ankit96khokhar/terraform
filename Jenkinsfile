@@ -22,6 +22,12 @@ spec:
       choices: ['dev', 'staging', 'prod'],
       description: 'Terraform environment'
     )
+
+    choice(
+      name: 'ACTION',
+      choices: ['plan', 'apply'],
+      description: 'Terraform action to perform'
+    )
   }
 
   environment {
@@ -107,24 +113,10 @@ Enter:
       }
     }
 
-    stage('Approve Terraform Apply') {
-      steps {
-        input(
-          message: """
-⚠️ TERRAFORM APPLY APPROVAL ⚠️
-
-Environment : ${params.ENV}
-Modules     : ${env.SELECTED_MODULES}
-
-Click 'Apply Terraform' to continue.
-""",
-          ok: 'Apply Terraform',
-          submitter: 'admin'
-        )
-      }
-    }
-
     stage('Terraform Apply') {
+      when {
+        expression { params.ACTION == 'apply' }
+      }
       steps {
         withAWS(
           credentials: 'aws-bootstrap',
