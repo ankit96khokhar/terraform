@@ -9,7 +9,8 @@ kind: Pod
 spec:
   containers:
   - name: terraform
-    image: hashicorp/terraform:1.6.6
+    image: terraform-python-venv:local
+    imagePullPolicy: IfNotPresent
     command: ["cat"]
     tty: true
 """
@@ -17,6 +18,11 @@ spec:
   }
 
   parameters {
+    string(
+      name: 'TENANT',
+      description: 'Tenant / Business Unit name (example: tenant-a)'
+    )
+
     choice(
       name: 'ENV',
       choices: ['dev', 'staging', 'prod'],
@@ -45,6 +51,7 @@ spec:
   environment {
     TF_IN_AUTOMATION = "true"
     TF_INPUT = "false"
+    BLUEPRINT_REPO = 'git@github.com:ankit96khokhar/blueprint-config.git'
   }
 
   stages {
@@ -55,76 +62,96 @@ spec:
       }
     }
 
-    stage('Discover & Select Modules') {
+    stage('Checkout Blueprint Config Repo') {
       steps {
-        script {
-          def modules = sh(
-            script: "ls -d modules/*/ | cut -d'/' -f2",
-            returnStdout: true
-          ).trim().split("\n")
-
-          echo "Discovered modules: ${modules}"
-
-          def selection = input(
-            message: """Available modules:
-${modules.join(', ')}
-
-Enter:
-- ALL
-- OR comma-separated list (example: eks,vpc)
-""",
-            parameters: [
-              string(
-                name: 'SELECTED_MODULES',
-                defaultValue: 'ALL',
-                description: 'Modules to apply'
-              )
-            ]
+        dir('blueprints'){
+          git(
+            url: env.BLUEPRINT_REPO
+            branch: 'main',
+            credentialsId: 'github-ssh'            
           )
-
-          env.SELECTED_MODULES = selection.trim()
         }
       }
     }
 
+//     stage('Discover & Select Modules') {
+//       steps {
+//         script {
+//           def modules = sh(
+//             script: "ls -d modules/*/ | cut -d'/' -f2",
+//             returnStdout: true
+//           ).trim().split("\n")
+
+//           echo "Discovered modules: ${modules}"
+
+//           def selection = input(
+//             message: """Available modules:
+// ${modules.join(', ')}
+
+// Enter:
+// - ALL
+// - OR comma-separated list (example: eks,vpc)
+// """,
+//             parameters: [
+//               string(
+//                 name: 'SELECTED_MODULES',
+//                 defaultValue: 'ALL',
+//                 description: 'Modules to apply'
+//               )
+//             ]
+//           )
+
+//           env.SELECTED_MODULES = selection.trim()
+//         }
+//       }
+//     }
+
+
+    stage('Check Tenant Blueprint Exists') {
+      steps {
+        sh """
+          test -f blueprints/tenants/${params.TENANT}/${params.ENV}/${params.REGION}.yaml \
+          || (echo "❌ Tenant blueprint not found" && exit 1)
+        """
+      }
+    }
+
+    stage('Validate Blueprint and Generate tf vars') {
+      steps {
+        sh """
+          set -e
+          python3 scripts/yamls_to_tfvars_json.py \
+          blueprints/schema/tenant-schema.yaml \
+          blueprints/tenants/${params.TENANT}/${params.ENV}/${params.REGION}.yaml \
+          tfvars.json
+        """
+      }
+    }
+
+    stage('Show Generated tfvars') {
+      steps {
+        sh "cat tfvars.json"
+      }
+    }
+
     stage('Terraform Init & Plan') {
+      when {
+        expression { params.ACTION != 'destroy' }
+      }
       steps {
         withAWS(
           credentials: 'aws-bootstrap',
           role: 'arn:aws:iam::907793002691:role/terraform-ci-role',
           roleSessionName: 'jenkins-terraform'
         ) {
-          script {
-            def backendFile = "backend/backend_${params.ENV}.hcl"
+          sh """
+            terraform init -reconfigure \
+              -backend-config="backend/backend_${params.ENV}.hcl" \
+              -backend-config="key=${params.TENANT}/${params.ENV}/${params.REGION}/terraform.tfstate" \
+              -backend-config="region=${params.REGION}"
+          """
 
-            sh """
-              terraform init -reconfigure \
-                -backend-config="${backendFile}" \
-                -backend-config="key=eks/${params.ENV}/${params.REGION}/terraform.tfstate" \
-                -backend-config="region=${params.REGION}"
-            """
-
-            sh """
-              terraform workspace new ${params.ENV} || \
-              terraform workspace select ${params.ENV}
-            """
-
-            if (env.SELECTED_MODULES == 'ALL') {
-              sh "terraform plan -var-file=env/${params.ENV}.tfvars -out=tfplan"
-            } else {
-              def targets = env.SELECTED_MODULES
-                .split(',')
-                .collect { "-target=module.${it.trim()}" }
-                .join(' ')
-
-              sh """
-                terraform plan \
-                  -var-file=env/${params.ENV}.tfvars \
-                  ${targets} \
-                  -out=tfplan
-              """
-            }
-          }
+          sh "terraform plan -var-file=tfvars.json -out=tfplan"
         }
       }
     }
@@ -146,9 +173,7 @@ Enter:
 
     stage('Terraform Destroy Plan') {
       when {
-        allOf {
-          expression { params.ACTION == 'destroy' }
-        }
+        expression { params.ACTION == 'destroy' }
       }
       steps {
         withAWS(
@@ -156,24 +181,14 @@ Enter:
           role: 'arn:aws:iam::907793002691:role/terraform-ci-role',
           roleSessionName: 'jenkins-terraform'
         ) {
-          script {
+          sh """
+            terraform init -reconfigure \
+              -backend-config="backend/backend_${params.ENV}.hcl" \
+              -backend-config="key=${params.TENANT}/${params.ENV}/${params.REGION}/terraform.tfstate" \
+              -backend-config="region=${params.REGION}"
+          """
 
-            if (env.SELECTED_MODULES == 'ALL') {
-              sh "terraform plan -destroy -var-file=env/${params.ENV}.tfvars -out=tfplan-destroy"
-            } else {
-              def targets = env.SELECTED_MODULES
-                .split(',')
-                .collect { "-target=module.${it.trim()}" }
-                .join(' ')
-
-              sh """
-                terraform plan -destroy \
-                  -var-file=env/${params.ENV}.tfvars \
-                  ${targets} \
-                  -out=tfplan-destroy
-              """
-            }
-          }
+          sh "terraform plan -destroy -var-file=tfvars.json -out=tfplan-destroy"
         }
       }
     }
