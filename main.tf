@@ -1,12 +1,18 @@
-module "vpc" {
-  source = "./modules/vpc"
+# module "vpc" {
+#   source = "./modules/vpc"
 
-  vpc_cidr           = var.vpc_cidr
-  # public_subnets     = var.public_subnets
-  # private_subnets    = var.private_subnets
-  # availability_zones = var.availability_zones
-  cluster_name       = var.cluster_name
-  environment        = var.environment
+#   vpc_cidr           = var.vpc_cidr
+#   # public_subnets     = var.public_subnets
+#   # private_subnets    = var.private_subnets
+#   # availability_zones = var.availability_zones
+#   cluster_name       = var.cluster_name
+#   environment        = var.environment
+# }
+
+module "vpc" {
+  count = contains(keys(var.services), "vpc") ? 1 : 0
+  source   = "./modules/vpc"
+  vpc_cidr = var.services["vpc"].vpc_cidr
 }
 
 module "eks" {

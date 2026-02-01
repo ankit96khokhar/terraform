@@ -24,6 +24,12 @@ variable "vpc_cidr" {}
 # variable "availability_zones" {}
 variable "cluster_name" {}
 variable "cluster_version" {}
+
+variable "services" {
+  type = map(any)
+  default = {}
+}
+
 variable "admin_principal_arn" {}
 variable "account_id" {}
 
