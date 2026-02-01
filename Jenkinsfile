@@ -66,7 +66,7 @@ spec:
       steps {
         dir('blueprints'){
           git(
-            url: env.BLUEPRINT_REPO
+            url: env.BLUEPRINT_REPO,
             branch: 'main',
             credentialsId: 'github-ssh'            
           )
