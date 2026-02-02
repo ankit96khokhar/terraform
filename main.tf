@@ -13,6 +13,7 @@ module "vpc" {
   count = contains(keys(var.services), "vpc") ? 1 : 0
   source   = "./modules/vpc"
   vpc_cidr = var.services["vpc"]["vpc_cidr"]
+  environment = var.environment
 }
 
 module "eks" {

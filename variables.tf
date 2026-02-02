@@ -9,14 +9,14 @@ variable "region" {
     default = "ap-south-1"
 }
 
-variable "default_node_group_taints" {
-  type = list(object({
-    key = string
-    value = string
-    effect = string
-  }))
-  default = []
-}
+# variable "default_node_group_taints" {
+#   type = list(object({
+#     key = string
+#     value = string
+#     effect = string
+#   }))
+#   default = []
+# }
 
 # variable "vpc_cidr" {}
 # variable "public_subnets" {}
@@ -24,6 +24,8 @@ variable "default_node_group_taints" {
 # variable "availability_zones" {}
 # variable "cluster_name" {}
 # variable "cluster_version" {}
+
+
 
 variable "services" {
   type = map(any)
