@@ -37,7 +37,7 @@ resource "helm_release" "metrics_server" {
 }
 
 resource "aws_iam_role" "alb_controller" {
-  name = "${var.cluster_name}-alb-controller"
+  name = "${var.services["eks"]["cluster_name"]}-alb-controller"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -90,7 +90,7 @@ resource "helm_release" "aws_lb_controller" {
 }
 
 resource "aws_iam_role" "ebs_csi" {
-  name = "${var.cluster_name}-ebs-csi"
+  name = "${var.services["eks"]["cluster_name"]}-ebs-csi"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -177,7 +177,7 @@ resource "aws_iam_role" "karpenter_controller" {
 }
 
 resource "aws_iam_policy" "karpenter_controller" {
-  name        = "${var.cluster_name}-karpenter-controller"
+  name        = "${var.services["eks"]["cluster_name"]}-karpenter-controller"
   description = "IAM policy for Karpenter controller"
 
   policy = jsonencode({
@@ -232,7 +232,7 @@ resource "aws_iam_role_policy_attachment" "karpenter_controller" {
 }
 
 resource "aws_iam_role" "karpenter_node" {
-  name = "${var.cluster_name}-karpenter-node"
+  name = "${var.services["eks"]["cluster_name"]}-karpenter-node"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"

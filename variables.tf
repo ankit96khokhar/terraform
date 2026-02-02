@@ -3,6 +3,11 @@ variable "environment" {
     type = string
 }
 
+variable "tenant" {
+    description = "Tenant name"
+    type = string
+}
+
 variable "region" {
     description = "Region name"
     type = string
@@ -32,8 +37,8 @@ variable "services" {
   default = {}
 }
 
-# variable "admin_principal_arn" {}
-# variable "account_id" {}
+variable "admin_principal_arn" {}
+variable "account_id" {}
 
 # variable "node_instance_types" {
 #   type = list(string)
