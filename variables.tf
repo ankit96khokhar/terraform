@@ -52,7 +52,7 @@ variable "region" {
 # }
 
 variable "services" {
-  type = map(any)
+  type = any
   default = {}
 }
 
