@@ -31,6 +31,24 @@ module "eks" {
   account_id = var.account_id
 }
 
+module "eks_bootstrap" {
+  for_each = module.eks
+  source   = "./modules/eks-bootstrap"
+
+  cluster_name               = each.value.cluster_name
+  cluster_endpoint           = each.value.cluster_endpoint
+  cluster_ca_certificate     = each.value.cluster_certificate_authority
+  oidc_provider_arn          = each.value.oidc_provider_arn
+  oidc_provider_url          = each.value.oidc_provider_url
+
+  vpc_id                     = each.value.vpc_id
+  region                     = var.region
+  environment                = var.environment
+  admin_principal_arn        = var.admin_principal_arn
+  account_id                 = var.account_id
+}
+
+
 # module "node_group" {
 #   source = "./modules/node_group"
 
