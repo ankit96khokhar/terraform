@@ -1,7 +1,3 @@
-output "vpc_id" {
-    value = module.vpc.vpc_id
-}
-
 output "vpc_ids" {
   value = {
     for k, v in module.vpc:
@@ -15,7 +11,6 @@ output "private_subnet_ids" {
     k => v.private_subnet_ids
   }
 }
-
 
 output "public_subnet_ids" {
     value = {
