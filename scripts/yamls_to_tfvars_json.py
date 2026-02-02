@@ -158,6 +158,8 @@ def validate_and_generate(schema_file, tenant_file, output_tfvars):
         "tenant": tenant["tenant"],
         "environment": tenant["env"],
         "region": tenant["region"],
+        "admin_principal_arn": tenant["admin_principal_arn"],
+        "account_id": tenant["account_id"],        
     }
 
     if "description" in tenant:
