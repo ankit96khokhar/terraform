@@ -163,12 +163,12 @@ def validate_and_generate(schema_file, tenant_file, output_tfvars):
     if "description" in tenant:
         tfvars["description"] = tenant["description"]
 
+    tfvars["services"] = {}
+
     for svc, svc_data in services.items():
         if svc_data["enabled"] is True:
-            if "config" in svc_data:
-                tfvars[svc] = svc_data["config"]
-        else:
-            tfvars[f"{svc}_enabled"] = False
+            tfvars["services"][svc] = svc_data.get("config", {})
+
 
     with open(output_tfvars, "w") as out:
         json.dump(tfvars, out, indent=2)
