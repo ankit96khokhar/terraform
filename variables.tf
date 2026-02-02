@@ -32,23 +32,28 @@ variable "region" {
 
 
 
-variable "services" {
-  type = object({
-    vpc = optional(map(object({
-      vpc_cidr = string
-    })))
+# variable "services" {
+#   type = object({
+#     vpc = optional(map(object({
+#       vpc_cidr = string
+#     })))
 
-    eks = optional(map(object({
-      vpc_name   = string
-      version    = string
-      node_groups = map(object({
-        instance_types = list(string)
-        min            = number
-        max            = number
-        desired        = number
-      }))
-    })))
-  })
+#     eks = optional(map(object({
+#       vpc_name   = string
+#       version    = string
+#       node_groups = map(object({
+#         instance_types = list(string)
+#         min            = number
+#         max            = number
+#         desired        = number
+#       }))
+#     })))
+#   })
+# }
+
+variable "services" {
+  type = map(any)
+  default = {}
 }
 
 variable "admin_principal_arn" {}
