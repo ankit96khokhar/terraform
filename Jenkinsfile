@@ -20,6 +20,7 @@ spec:
   parameters {
     string(
       name: 'TENANT',
+      defaultValue: 'tenant-a',
       description: 'Tenant / Business Unit name (example: tenant-a)'
     )
 
