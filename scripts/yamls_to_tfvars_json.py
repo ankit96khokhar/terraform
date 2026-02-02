@@ -134,22 +134,43 @@ def validate_and_generate(schema_file, tenant_file, output_tfvars):
             print(f"Service {svc} must have boolean 'enabled'")
             sys.exit(1)
 
+    # # -----------------------------
+    # # Step 4: Generic service validation
+    # # -----------------------------
+    # for svc, svc_data in services.items():
+    #     if svc_data["enabled"] is True:
+    #         svc_schema = schema["services"][svc]
+    #         if "config" in svc_schema:
+    #             if "config" not in svc_data:
+    #                 print(f"Missing config for enabled service: {svc}")
+    #                 sys.exit(1)
+
+    #             validate_block(
+    #                 svc_schema["config"],
+    #                 svc_data["config"],
+    #                 f"services.{svc}.config"
+    #             )
+
     # -----------------------------
     # Step 4: Generic service validation
     # -----------------------------
     for svc, svc_data in services.items():
         if svc_data["enabled"] is True:
             svc_schema = schema["services"][svc]
+
             if "config" in svc_schema:
                 if "config" not in svc_data:
                     print(f"Missing config for enabled service: {svc}")
                     sys.exit(1)
 
-                validate_block(
-                    svc_schema["config"],
-                    svc_data["config"],
-                    f"services.{svc}.config"
-                )
+                # config is a MAP (multiple instances)
+                for instance_name, instance_config in svc_data["config"].items():
+                    validate_block(
+                        svc_schema["config"]["schema"],
+                        instance_config,
+                        f"services.{svc}.config.{instance_name}"
+                    )
+
 
     # -----------------------------
     # Step 5: Generate tfvars JSON

@@ -10,9 +10,10 @@
 # }
 
 module "vpc" {
-  count = contains(keys(var.services), "vpc") ? 1 : 0
+  for_each = var.services.vpc != null ? { vpc = var.services.vpc } : {}
   source   = "./modules/vpc"
-  vpc_cidr = var.services["vpc"]["vpc_cidr"]
+  vpc_name = each.key
+  vpc_cidr = each.value.vpc_cidr
   environment = var.environment
 }
 

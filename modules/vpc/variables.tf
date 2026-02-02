@@ -6,3 +6,7 @@ variable "vpc_cidr" {
 variable "environment" {
   type = string
 }
+
+variable "vpc_name" {
+  type = string
+}

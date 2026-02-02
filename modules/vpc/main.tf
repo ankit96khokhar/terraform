@@ -5,6 +5,7 @@ resource "aws_vpc" "this" {
 
   tags = {
     Env  = var.environment
+    Name = var.vpc_name
   }
 }
 
