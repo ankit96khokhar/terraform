@@ -17,17 +17,18 @@ module "vpc" {
   environment = var.environment
 }
 
-module "eks" {
-  source = "./modules/eks"
+# module "eks" {
 
-  cluster_name        = var.services["eks"]["cluster_name"]
-  cluster_version     = var.services["eks"]["version"]
-  environment         = var.environment
-  vpc_id              = module.vpc.vpc_id
-  private_subnet_ids  = module.vpc.private_subnet_ids
-  admin_principal_arn = var.admin_principal_arn
-  account_id = var.account_id
-}
+#   source = "./modules/eks"
+
+#   cluster_name        = var.services["eks"]["cluster_name"]
+#   cluster_version     = var.services["eks"]["version"]
+#   environment         = var.environment
+#   vpc_id              = module.vpc.vpc_id
+#   private_subnet_ids  = module.vpc.private_subnet_ids
+#   admin_principal_arn = var.admin_principal_arn
+#   account_id = var.account_id
+# }
 
 # module "node_group" {
 #   source = "./modules/node_group"
