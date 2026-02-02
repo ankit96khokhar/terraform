@@ -18,21 +18,21 @@ variable "default_node_group_taints" {
   default = []
 }
 
-variable "vpc_cidr" {}
+# variable "vpc_cidr" {}
 # variable "public_subnets" {}
 # variable "private_subnets" {}
 # variable "availability_zones" {}
-variable "cluster_name" {}
-variable "cluster_version" {}
+# variable "cluster_name" {}
+# variable "cluster_version" {}
 
 variable "services" {
   type = map(any)
   default = {}
 }
 
-variable "admin_principal_arn" {}
-variable "account_id" {}
+# variable "admin_principal_arn" {}
+# variable "account_id" {}
 
-variable "node_instance_types" {
-  type = list(string)
-}
+# variable "node_instance_types" {
+#   type = list(string)
+# }
