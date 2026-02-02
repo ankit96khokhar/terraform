@@ -12,7 +12,7 @@
 module "vpc" {
   count = contains(keys(var.services), "vpc") ? 1 : 0
   source   = "./modules/vpc"
-  vpc_cidr = var.services["vpc"].vpc_cidr
+  vpc_cidr = var.services["vpc"]["vpc_cidr"]
 }
 
 module "eks" {

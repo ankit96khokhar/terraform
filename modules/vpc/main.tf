@@ -4,7 +4,6 @@ resource "aws_vpc" "this" {
   enable_dns_hostnames = true
 
   tags = {
-    Name = "${var.cluster_name}-vpc"
     Env  = var.environment
   }
 }
@@ -13,7 +12,7 @@ resource "aws_internet_gateway" "this" {
   vpc_id = aws_vpc.this.id
 
   tags = {
-    Name = "${var.cluster_name}-igw"
+    Env  = var.environment    
   }
 }
 
@@ -34,9 +33,7 @@ resource "aws_subnet" "public" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "${var.cluster_name}-public-${local.azs[count.index]}"
-    "kubernetes.io/cluster/${var.cluster_name}" = "shared"
-    "kubernetes.io/role/elb"                    = "1"
+    Env  = var.environment    
   }
 }
 
@@ -48,9 +45,7 @@ resource "aws_subnet" "private" {
   availability_zone = local.azs[count.index]
 
   tags = {
-    Name = "${var.cluster_name}-private-${local.azs[count.index]}"
-    "kubernetes.io/cluster/${var.cluster_name}" = "shared"
-    "kubernetes.io/role/internal-elb"           = "1"
+    Env  = var.environment    
   }
 }
 
@@ -64,7 +59,7 @@ resource "aws_nat_gateway" "this" {
     subnet_id     = aws_subnet.public[0].id
 
     tags = {
-        Name = "${var.cluster_name}-nat"
+        Env  = var.environment
     }
 }
 
