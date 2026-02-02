@@ -158,18 +158,29 @@ def validate_and_generate(schema_file, tenant_file, output_tfvars):
         if svc_data["enabled"] is True:
             svc_schema = schema["services"][svc]
 
-            if "config" in svc_schema:
-                if "config" not in svc_data:
-                    print(f"Missing config for enabled service: {svc}")
-                    sys.exit(1)
+            if "config" not in svc_schema:
+                continue
 
-                # config is a MAP (multiple instances)
+            if "config" not in svc_data:
+                print(f"Missing config for enabled service: {svc}")
+                sys.exit(1)
+
+            # CASE 1: config is MAP of instances (EKS, RDS, etc)
+            if svc_schema["config"].get("type") == "map":
                 for instance_name, instance_config in svc_data["config"].items():
                     validate_block(
                         svc_schema["config"]["schema"],
                         instance_config,
                         f"services.{svc}.config.{instance_name}"
                     )
+
+            # CASE 2: config is SINGLE object (VPC)
+            else:
+                validate_block(
+                    svc_schema["config"],
+                    svc_data["config"],
+                    f"services.{svc}.config"
+                )
 
 
     # -----------------------------
