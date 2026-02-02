@@ -10,7 +10,7 @@
 # }
 
 module "vpc" {
-  for_each = var.services.vpc != null ? var.services.vpc : {}
+  for_each = try(var.services.vpc, {})
   source   = "./modules/vpc"
   vpc_name = each.key
   vpc_cidr = each.value.vpc_cidr
@@ -18,7 +18,7 @@ module "vpc" {
 }
 
 module "eks" {
-  for_each = var.services.eks != null ? var.services.eks : {}
+  for_each = try(var.services.eks, {})
   source = "./modules/eks"
 
   cluster_name        = each.key
