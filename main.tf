@@ -10,25 +10,25 @@
 # }
 
 module "vpc" {
-  for_each = try(var.services.vpc, {})
-  source   = "./modules/vpc"
-  vpc_name = each.key
-  vpc_cidr = each.value.vpc_cidr
+  for_each    = try(var.services.vpc, {})
+  source      = "./modules/vpc"
+  vpc_name    = each.key
+  vpc_cidr    = each.value.vpc_cidr
   environment = var.environment
 }
 
 module "eks" {
   for_each = try(var.services.eks, {})
-  source = "./modules/eks"
+  source   = "./modules/eks"
 
-  cluster_name        = each.key
-  cluster_version     = each.value.version
+  cluster_name    = each.key
+  cluster_version = each.value.version
   # node_groups         = each.value.node_groups
   environment         = var.environment
   vpc_id              = module.vpc[each.value.vpc_name].vpc_id
   private_subnet_ids  = module.vpc[each.value.vpc_name].private_subnet_ids
   admin_principal_arn = var.admin_principal_arn
-  account_id = var.account_id
+  account_id          = var.account_id
 }
 
 # module "eks_bootstrap" {

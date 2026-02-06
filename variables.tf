@@ -1,17 +1,17 @@
 variable "environment" {
-    description = "Environment name (dev, staging or prod)"
-    type = string
+  description = "Environment name (dev, staging or prod)"
+  type        = string
 }
 
 variable "tenant" {
-    description = "Tenant name"
-    type = string
+  description = "Tenant name"
+  type        = string
 }
 
 variable "region" {
-    description = "Region name"
-    type = string
-    default = "ap-south-1"
+  description = "Region name"
+  type        = string
+  default     = "ap-south-1"
 }
 
 # variable "default_node_group_taints" {
@@ -52,7 +52,7 @@ variable "region" {
 # }
 
 variable "services" {
-  type = any
+  type    = any
   default = {}
 }
 

@@ -1,6 +1,6 @@
 output "vpc_ids" {
   value = {
-    for k, v in module.vpc:
+    for k, v in module.vpc :
     k => v.vpc_id
   }
 }
@@ -13,10 +13,10 @@ output "private_subnet_ids" {
 }
 
 output "public_subnet_ids" {
-    value = {
-      for k, v in module.vpc :
-      k => v.public_subnet_ids
-    }
+  value = {
+    for k, v in module.vpc :
+    k => v.public_subnet_ids
+  }
 }
 
 output "eks_cluster_names" {
