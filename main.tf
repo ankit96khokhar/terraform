@@ -31,6 +31,20 @@ module "eks" {
   account_id          = var.account_id
 }
 
+module "dynamodb" {
+  # for_each = try(var.services.dynamodb, {})
+  source = "./modules/dynamodb"
+
+  table_name  = var.services["dynamodb"]["config"]["fleet_upgrade"]["table_name"]
+  billing_mode = var.services["dynamodb"]["config"]["fleet_upgrade"]["billing_mode"]
+
+  tags = {
+    Project = "eks-fleet-orchestrator"
+  }
+}
+
+
+
 # module "eks_bootstrap" {
 #   for_each = module.eks
 #   source   = "./modules/eks-bootstrap"
