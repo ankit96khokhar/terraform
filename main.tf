@@ -31,17 +31,26 @@ module "eks" {
   account_id          = var.account_id
 }
 
+locals {
+  dynamodb_enabled = try(var.services.dynamodb.enabled, false)
+  dynamodb_config  = try(var.services.dynamodb.config, {})
+}
+
 module "dynamodb" {
-  # for_each = try(var.services.dynamodb, {})
+  for_each = local.dynamodb_enabled ? local.dynamodb_config : {}
+
   source = "./modules/dynamodb"
 
-  table_name  = var.services["dynamodb"]["config"]["fleet_upgrade"]["table_name"]
-  billing_mode = var.services["dynamodb"]["config"]["fleet_upgrade"]["billing_mode"]
+  table_name   = each.value.table_name
+  billing_mode = try(each.value.billing_mode, "PAY_PER_REQUEST")
 
   tags = {
-    Project = "eks-fleet-orchestrator"
+    Project     = "eks-fleet-orchestrator"
+    Environment = var.environment
   }
 }
+
+
 
 
 
