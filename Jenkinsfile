@@ -168,7 +168,7 @@ spec:
                 -backend-config="region=${params.REGION}"
             """
 
-            sh "terraform plan -var-file=tfvars.json -out=tfplan"
+            sh "terraform plan -var-file=tfvars.json -var=cluster_name=${params.CLUSTER} -out=tfplan"
           }
         }
       }
@@ -217,7 +217,7 @@ spec:
                 -backend-config="region=${params.REGION}"
             """
 
-            sh "terraform plan -destroy -var-file=tfvars.json -out=tfplan-destroy"
+            sh "terraform plan -destroy -var-file=tfvars.json -var=cluster_name=${params.CLUSTER} -out=tfplan-destroy"
           }
         }
       }
