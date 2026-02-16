@@ -77,19 +77,19 @@ module "dynamodb" {
 # }
 
 
-module "node_group" {
-  source = "./modules/node_group"
+# module "node_group" {
+#   source = "./modules/node_group"
 
-  cluster_name = var.services["eks"]["cluster_name"]
-  node_group_name = var.services["eks"]["node_groups"]["node_group_name"]
-  subnet_ids = module.vpc.private_subnet_ids
-  instance_types = var.services["eks"]["node_groups"]["instance_types"]
-  desired_size = var.services["eks"]["node_groups"]["desired"]
-  min_size = var.services["eks"]["node_groups"]["min"]
-  max_size = var.services["eks"]["node_groups"]["max"]
-  environment = var.environment
+#   cluster_name = var.services["eks"]["cluster_name"]
+#   node_group_name = var.services["eks"]["node_groups"]["node_group_name"]
+#   subnet_ids = module.vpc.private_subnet_ids
+#   instance_types = var.services["eks"]["node_groups"]["instance_types"]
+#   desired_size = var.services["eks"]["node_groups"]["desired"]
+#   min_size = var.services["eks"]["node_groups"]["min"]
+#   max_size = var.services["eks"]["node_groups"]["max"]
+#   environment = var.environment
 
-  labels = {
-    role = "general"
-  }
-}
+#   labels = {
+#     role = "general"
+#   }
+# }
