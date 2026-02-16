@@ -1,13 +1,3 @@
-# module "vpc" {
-#   source = "./modules/vpc"
-
-#   vpc_cidr           = var.vpc_cidr
-#   # public_subnets     = var.public_subnets
-#   # private_subnets    = var.private_subnets
-#   # availability_zones = var.availability_zones
-#   cluster_name       = var.cluster_name
-#   environment        = var.environment
-# }
 
 module "vpc" {
   for_each    = try(var.services.vpc, {})
@@ -87,20 +77,19 @@ module "dynamodb" {
 # }
 
 
-# module "node_group" {
-#   source = "./modules/node_group"
+module "node_group" {
+  source = "./modules/node_group"
 
-#   cluster_name = var.services["eks"]["cluster_name"]
-#   node_group_name = var.services["eks"]["node_groups"]["node_group_name"]
-#   subnet_ids = module.vpc.private_subnet_ids
-#   instance_types = var.services["eks"]["node_groups"]["instance_types"]
-#   desired_size = var.services["eks"]["node_groups"]["desired"]
-#   min_size = var.services["eks"]["node_groups"]["min"]
-#   max_size = var.services["eks"]["node_groups"]["max"]
-#   environment = var.environment
+  cluster_name = var.services["eks"]["cluster_name"]
+  node_group_name = var.services["eks"]["node_groups"]["node_group_name"]
+  subnet_ids = module.vpc.private_subnet_ids
+  instance_types = var.services["eks"]["node_groups"]["instance_types"]
+  desired_size = var.services["eks"]["node_groups"]["desired"]
+  min_size = var.services["eks"]["node_groups"]["min"]
+  max_size = var.services["eks"]["node_groups"]["max"]
+  environment = var.environment
 
-#   labels = {
-#     role = "general"
-#   }
-
-# }
+  labels = {
+    role = "general"
+  }
+}
