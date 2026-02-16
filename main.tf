@@ -19,6 +19,7 @@ module "vpc" {
 
 locals {
   state_bucket = "ankit-eks-tf-state-${var.environment}"
+  vpc_name = var.services.eks[var.cluster_name].vpc_name
 }
 
 data "terraform_remote_state" "vpc_info" {
@@ -36,11 +37,11 @@ module "eks" {
   source   = "./modules/eks"
 
   cluster_name    = var.cluster_name
-  cluster_version = var.cluster_version
+  cluster_version = var.services.eks[var.cluster_name].version
   # node_groups         = each.value.node_groups
   environment         = var.environment
-  vpc_id              = data.terraform_remote_state.vpc_info.outputs.vpc_ids.value[var.vpc_name]
-  private_subnet_ids  = data.terraform_remote_state.vpc_info.outputs.private_subnet_ids.value[var.vpc_name]
+  vpc_id              = data.terraform_remote_state.vpc_info.outputs.vpc_ids.value[locals.vpc_name]
+  private_subnet_ids  = data.terraform_remote_state.vpc_info.outputs.private_subnet_ids.value[locals.vpc_name]
   admin_principal_arn = var.admin_principal_arn
   account_id          = var.account_id
 }

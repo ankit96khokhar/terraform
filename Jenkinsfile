@@ -24,6 +24,12 @@ spec:
       description: 'Tenant / Business Unit name (example: tenant-a)'
     )
 
+    string(
+      name: 'CLUSTER',
+      defaultValue: 'tenant-a-cluster1',
+      description: 'Eks cluster name'
+    )
+
     choice(
       name: 'ENV',
       choices: ['dev', 'staging', 'prod'],
