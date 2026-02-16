@@ -40,8 +40,8 @@ module "eks" {
   cluster_version = var.services.eks[var.cluster_name].version
   # node_groups         = each.value.node_groups
   environment         = var.environment
-  vpc_id              = data.terraform_remote_state.vpc_info.outputs.vpc_ids.value[locals.vpc_name]
-  private_subnet_ids  = data.terraform_remote_state.vpc_info.outputs.private_subnet_ids.value[locals.vpc_name]
+  vpc_id              = data.terraform_remote_state.vpc_info.outputs.vpc_ids.value[local.vpc_name]
+  private_subnet_ids  = data.terraform_remote_state.vpc_info.outputs.private_subnet_ids.value[local.vpc_name]
   admin_principal_arn = var.admin_principal_arn
   account_id          = var.account_id
 }
