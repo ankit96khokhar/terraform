@@ -27,9 +27,9 @@ variable "region" {
 # variable "public_subnets" {}
 # variable "private_subnets" {}
 # variable "availability_zones" {}
-# variable "cluster_name" {}
-# variable "cluster_version" {}
-
+variable "cluster_name" {}
+variable "cluster_version" {}
+variable "vpc_name" {}
 
 
 # variable "services" {

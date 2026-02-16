@@ -139,23 +139,35 @@ spec:
       when {
         expression { params.ACTION != 'destroy' }
       }
-      steps {
-        withAWS(
-          credentials: 'aws-bootstrap',
-          role: 'arn:aws:iam::907793002691:role/terraform-ci-role',
-          roleSessionName: 'jenkins-terraform'
-        ) {
-          sh """
-            terraform init -reconfigure \
-              -backend-config="backend/backend_${params.ENV}.hcl" \
-              -backend-config="key=${params.TENANT}/${params.ENV}/${params.REGION}/terraform.tfstate" \
-              -backend-config="region=${params.REGION}"
-          """
 
-          sh "terraform plan -var-file=tfvars.json -out=tfplan"
+      steps {
+        script {
+          def backendKey
+
+          if (params.SERVICE == "eks") {
+            backendKey = "${params.TENANT}/${params.ENV}/${params.REGION}/${params.CLUSTER}/terraform.tfstate"
+          } else {
+            backendKey = "${params.TENANT}/${params.ENV}/${params.REGION}/terraform.tfstate"
+          }
+
+          withAWS(
+            credentials: 'aws-bootstrap',
+            role: 'arn:aws:iam::907793002691:role/terraform-ci-role',
+            roleSessionName: 'jenkins-terraform'
+          ) {
+            sh """
+              terraform init -reconfigure \
+                -backend-config="backend/backend_${params.ENV}.hcl" \
+                -backend-config="key=${backendKey}" \
+                -backend-config="region=${params.REGION}"
+            """
+
+            sh "terraform plan -var-file=tfvars.json -out=tfplan"
+          }
         }
       }
     }
+
 
     stage('Terraform Apply') {
       when {
@@ -176,20 +188,31 @@ spec:
       when {
         expression { params.ACTION == 'destroy' }
       }
-      steps {
-        withAWS(
-          credentials: 'aws-bootstrap',
-          role: 'arn:aws:iam::907793002691:role/terraform-ci-role',
-          roleSessionName: 'jenkins-terraform'
-        ) {
-          sh """
-            terraform init -reconfigure \
-              -backend-config="backend/backend_${params.ENV}.hcl" \
-              -backend-config="key=${params.TENANT}/${params.ENV}/${params.REGION}/terraform.tfstate" \
-              -backend-config="region=${params.REGION}"
-          """
 
-          sh "terraform plan -destroy -var-file=tfvars.json -out=tfplan-destroy"
+      steps {
+        script {
+          def backendKey
+
+          if (params.SERVICE == "eks") {
+            backendKey = "${params.TENANT}/${params.ENV}/${params.REGION}/${params.CLUSTER}/terraform.tfstate"
+          } else {
+            backendKey = "${params.TENANT}/${params.ENV}/${params.REGION}/terraform.tfstate"
+          }
+
+          withAWS(
+            credentials: 'aws-bootstrap',
+            role: 'arn:aws:iam::907793002691:role/terraform-ci-role',
+            roleSessionName: 'jenkins-terraform'
+          ) {
+            sh """
+              terraform init -reconfigure \
+                -backend-config="backend/backend_${params.ENV}.hcl" \
+                -backend-config="key=${backendKey}" \
+                -backend-config="region=${params.REGION}"
+            """
+
+            sh "terraform plan -destroy -var-file=tfvars.json -out=tfplan-destroy"
+          }
         }
       }
     }
