@@ -19,25 +19,15 @@ output "public_subnet_ids" {
   }
 }
 
-output "eks_cluster_names" {
-  value = {
-    for k, v in module.eks :
-    k => v.cluster_name
-  }
+output "eks_cluster_name" {
+  value = module.eks.cluster_name
 }
 
-
-output "eks_cluster_endpoints" {
-  value = {
-    for k, v in module.eks :
-    k => v.cluster_endpoint
-  }
+output "eks_cluster_endpoint" {
+  value = module.eks.cluster_endpoint
 }
 
-
-output "eks_oidc_provider_arns" {
-  value = {
-    for k, v in module.eks :
-    k => v.oidc_provider_arn
-  }
+output "eks_oidc_provider_arn" {
+  value = module.eks.oidc_provider_arn
 }
+
