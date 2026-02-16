@@ -41,6 +41,8 @@
 #     min_size     = var.min_size
 #   }
 
+#   ami_type = "AL2_x86_64"
+
 #   labels = var.labels
 
 #   dynamic "taint" {
